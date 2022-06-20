@@ -1,0 +1,1317 @@
+;; Tally Smart Developers
+
+;;;==========================================================================================================================
+;;; Title Color
+;;;==========================================================================================================================
+[Color : CEO DB Title Color]
+	RGB 	: 192,192,192
+
+[Color : CEO DB Main Title Color]
+	RGB	: 64,0,0
+
+;;;==========================================================================================================================
+;;; Configure Button 
+;;;==========================================================================================================================
+
+[Variable : CEODBBankPassBook]
+	Type	 : Logical
+	Volatile : Yes
+
+[Button : CEO DB Configure]
+	Title	:  "Configure"
+	Action	: Execute	: CEO DB Configure Rep
+	Key 	: F12
+
+[Report : CEO DB Configure Rep]
+	Title 	:  "Configure"
+	Form	: CEO DB Configure Rep
+
+[Form : CEO DB Configure Rep]
+	Parts	: CEO DB Configure Rep
+	FullWidth: No
+	FullHeight : No
+	
+	
+
+[Part : CEO DB Configure Rep]
+	Lines 	: Form Sub Title, CEO DB Configure Rep
+	Local	: Field 	: Form Sub title 	: Setas 	:"Configure"
+
+	[Line : CEO DB Configure Rep]
+		Fields 	: Long Prompt, CEO DB Configure Rep
+		Local	: Field 	: Long Prompt	: Setas 	:"Show Balance as per Pass Book :"
+
+		[Field : CEO DB Configure Rep]
+			Use 		: Logical Field
+			Modifies	: CEODBBankPassBook
+			Setas		: ##CEODBBankPassBook
+			Set Always	: yes
+
+;;;==========================================================================================================================
+;;; DASHBOARD Starts Here
+;;;==========================================================================================================================
+
+[#Menu : Gateway of tally]
+	
+	Add : Item : Dash Board: Display :CEO DB
+
+[Report : CEO DB]
+	
+	Use 	: DSP Template
+	Title 	: "Dash Board";+@@DSPDateStr
+	PrintSet: Reporttitle	: "Dash Board"
+	Set		: ReportTitle	: "Dash Board"
+	Set		: SVFromDate	: ##SVCurrentDate
+	Set		: SVToDate		: ##SVCurrentDate
+	Form	: CEO DB
+	Family 	: "Dash Board"
+	Variable: CEODBBankPassBook
+	Set		: CEODBBankPassBook	: No
+	Family	: $$Translate:"Dash Board";@@DashBoard
+	
+[Form : CEO DB]
+	Parts		: DSP Company Name, Form SubTitle, CEO DB Main Part
+	Button		: F2ChangePeriod, Print Button, ExportButton
+	BackGround 	: LilyWhite
+	SpaceLeft	: 1% Screen
+	SpaceRight	: 1% Screen
+	Height		: 100% Screen
+	Width		: 100% Screen
+	FullHeight	: Yes
+	FullWidth	: Yes
+	Local		: Field 	: Form Sub Title	: Setas 	: "Dash Board : "+@@DSPDateStr
+	Local		: Line		: Form SubTitle		: Delete	: SpaceBottom
+	Local		: Part		: Form SubTitle		: Delete	: SpaceBottom
+	Local		: Part		: Form SubTitle		: Delete	: SpaceTop
+	Local		: Field		: Form SubTitle		: Style		: Normal Bold	
+	Local		: Field		: Form SubTitle		: Color		: CEO DB Main Title Color
+	Button  	: CEO DB Configure;;, Net Top Customer
+	Family	: $$Translate:"Dash Board"
+
+[Part : CEO DB Main Part]
+	Parts		: CEO DB Main Part Left
+	Right Parts	: CEO DB Main Part Middle, CEO DB Main Part Right
+
+[Part : CEO DB Main Part Left]
+	Parts	: CEO DB Cash Bank, CEO DB Bank Pass Book, CEO DB OS, CEO DB Cl Stock Val, CEO DB Cash flow, CEO DB Purc Sale, CEO DB Cost Centre Dr, CEO DB Cost Centre Cr, CEO DB NettProfit
+	Vertical: Yes
+	Border	: Thin Box
+
+[Part : CEO DB Main Part Middle]
+	Parts	: CEO DB Top 5 Products Qty Sold, CEO DB Top 5 Products Sale Value, CEO DB Sales Order Value, CEO DB Top 5 Cust Recvble, CEO DB Top 5 OverDue Dr, CEO DB Top 3 Non Moving Item
+	Vertical: Yes
+	Border	: Thin Top Bottom
+
+[Part :CEO DB Main Part Right]
+	Parts	: CEO DB Top 5 Supp, CEO DB Top 5 Products Qty Purc, CEO DB Top 5 Products Purc Value, CEO DB Purc Order Value, CEO DB Top 5 Cust Payable, CEO DB Top 5 OverDue Cr, CEO DB Top 3 Slow Moving Item
+	Vertical: Yes
+	Border	: Thin Box
+
+;;;============================================================================================================
+;;; Cash & Bank Balance
+;;;============================================================================================================
+[Part : CEO DB Cash Bank]
+	Lines		: CEO DB Cash Bank Title, CEO DB Cash Bank1, CEO DB Cash Bank2, CEO DB Cash Bank Nett
+
+	[Line : CEO DB Cash Bank Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas 	: "Cash & Bank Balance"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line : CEO DB Cash Bank1]
+		Local	: Field 	: Default	: Style	: Tiny
+		Fields 	: Medium Prompt
+		Right Fields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Cash Balance  :"
+		Local	: Field 	: Amount Field	: Setas 	: $ClosingBalance:Group:$$GroupCash
+		Local	: Field 	: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Amount Field	: Display	: Bank Group Summary
+
+	[Line : CEO DB Cash Bank2]
+		Local	: Field 	: Default	: Style	: Tiny
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Bank Balance (as per Company) :"
+		Local	: Field 	: Amount Field	: Setas 	: $$NettAmount:@@CEODBBankAmt:@@CEODBBankODAmt
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Display	: Bank Group Summary
+	
+	[Line : CEO DB Cash Bank Nett]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Medium Prompt	: Setas 	:"Total :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Amount Field	: Setas 	: @@CEODBCBNettAmt
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Option	: CEO DB Cash Bank Nett Negative		: NOT $$IsDr:@@CEODBCBNettAmt
+		Local	: Field 	: Amount Field	: Display	: Bank Group Summary
+
+	[!Line : CEO DB Cash Bank Nett Negative]
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Medium Prompt	: Setas 	:"Total :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Amount Field	: Setas 	: @@CEODBCBNettAmt
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Local	: Field 	: Amount Field	: Color		: RED
+		Local	: Field 	: Amount Field	: Display	: Bank Group Summary
+
+[System : Formula]
+	CEO DB Cash Amt		: $ClosingBalance:Group:$$GroupCash
+	CEO DB Bank Amt		: $ClosingBalance:Group:$$GroupBank
+	CEO DB Bank OD Amt	: $ClosingBalance:Group:$$GroupBankOD
+	
+	CEO DB Cash Bank Amt	: $$NettAmount:@@CEODBCashAmt:@@CEODBBankAmt
+	CEO DB CB Nett Amt		: $$NettAmount:@@CEODBCashBankAmt:@@CEODBBankODAmt
+
+;;;============================================================================================================
+;;; Bank PassBook
+;;;============================================================================================================
+[Part : CEO DB Bank Pass Book]
+	Lines 	: CEO DB Bank Pass Book Title, CEO DB Bank Pass Book
+
+	[Line : CEO DB Bank Pass Book Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas 	: "Bank Balance (as per Pass Book)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line : CEO DB Bank Pass Book]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Medium Prompt	: Setas 	: If ##CEODBBankPassBook Then "Bank Balance (as per Pass Book) :" else "Press F12 Key to activate "
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Amount Field	: Setas		: If ##CEODBBankPassBook Then $$AsAmount:@@CEODBBankRecon  else 0
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Display	: Bank Group Summary
+
+
+[Collection : CEO DB Bank Vouchers]
+	Type		: Vouchers	: Group
+	Childof		: $$GroupBank
+	Filter		: CEO DB BRS Date Yes
+	With Alias	: Yes
+
+[Collection : CEO DB Bank OD Vouchers]
+	Type	 	: vouchers	: Group
+	Childof	 	: $$GroupBankOD
+	With Alias 	: Yes
+	Filter		: CEO DB BRS Date Yes
+
+
+[System : Formula]
+	
+;;;	a) Collect all vouchers having nil Bankers DAte + Collect all Vouchers having bankers Date grater than @@DsPtoDate
+;;;	b) Take the closing balance of @@Dsptodate and multiply with -1 
+;;;     c) REsult = a+b
+
+	CEO DB BRS Date Yes	: If $$IsEmpty:$BankersDate Then @@CEODBBRSDateYes1 else @@CEODBBRSDateYes2   ;;;($$IsEmpty:$BankersDate OR)	;;; AND $Date < ##SVToDate)
+	CEO DB BRS Date Yes 1	: $BankersDate <= @@DSPToDate
+	CEO DB BRS Date Yes 2	: $BankersDate > @@DSPToDate
+
+	CEO DB Is Pymt Rcpt VCH	: $$IsReceipt:$VoucherTypeName OR $$IsPayment:$VoucherTypeName
+
+	CEODBBankReconDr	: $$CollAmtTotal:CEODBBankVouchers:@@CEODBBankReconDr1
+	CEODBBankReconDr1	: $$FilterAmtTotal:AllLedgerEntries:CEODBBankReconDrFilter:$Amount
+	CEODBBankReconDrFilter	: $$IsLedofGrp:$LedgerName:$$GroupBank AND NOT $IsDeemedPositive
+
+	CEODBBankODReconDr	: $$CollAmtTotal:CEODBBankODVouchers:@@CEODBBankODReconDr1
+	CEODBBankODReconDr1	: $$FilterAmtTotal:AllLedgerEntries:CEODBBankODReconDrFilter:$Amount
+	CEODBBankODReconDrFilter: $$IsLedofGrp:$LedgerName:$$GroupBankOD AND NOT $IsDeemedPositive
+
+	CEODBBankReconCr	: $$CollAmtTotal:CEODBBankVouchers:@@CEODBBankReconCr1
+	CEODBBankReconCr1	: $$FilterAmtTotal:AllLedgerEntries:CEODBBankReconCrFilter:$Amount
+	CEODBBankReconCrFilter	: $$IsLedofGrp:$LedgerName:$$GroupBank AND $IsDeemedPositive
+
+	CEODBBankODReconCr	: $$CollAmtTotal:CEODBBankODVouchers:@@CEODBBankODReconCr1
+	CEODBBankODReconCr1	: $$FilterAmtTotal:AllLedgerEntries:CEODBBankODReconCrFilter:$Amount
+	CEODBBankODReconCrFilter: $$IsLedofGrp:$LedgerName:$$GroupBankOD AND $IsDeemedPositive
+
+	CEODBBankReconNett	: $$NettAmount:@@CEODBBankReconDr:@@CEODBBankReconCr
+	CEODBBankODReconNett	: $$NettAmount:@@CEODBBankODReconCr:@@CEODBBankODReconDr
+
+	CEODBBankReconNettUlta	: $$NettAmount:@@CEODBBankReconNett:@@CEODBBankODReconNett
+	CEODBBankReconNettAmt	: @@CEODBBankReconNettUlta ;;; * -1
+
+	CEODBBankAsperCoBook	: $ClosingBalance:Group:$$GroupBank 	;;;$$FromValue:@@DSPFromDate:$$ToValue:@@DSPToDate:$ClosingBalance:Group:$$GroupBank
+	CEODBBankODAsperCoBook	: $ClosingBalance:Group:$$GroupBankOD
+	CEODBBankOPBalance	: ($$NettAmount:@@CEODBBankAsperCoBook:@@CEODBBankODAsperCoBook) * -1
+
+	CEODBCmpStartDate	: $StartingFrom:Company:##SVCurrentCompany
+	CEODBBankRecon		: $$NettAmount:@@CEODBBankOPBalance:@@CEODBBankReconNettAmt
+	
+;;;============================================================================================================
+;;; Outstanding
+;;;============================================================================================================
+[Part : CEO DB OS]
+	Lines		: CEO DB OS Title, CEO DB OS Rec, CEO DB OS Pay, CEO DB OS Nett
+	Border		: Thin Top
+
+	[Line : CEO DB OS Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Outstanding Details"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line : CEO DB OS Rec]
+		Local	: Field 	: Default	: Style		: Tiny
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"O/S Recvble :"
+		Local	: Field 	: Amount Field	: Setas 	: $ClosingBalance:Group:$$GroupSundryDebtors
+		Local	: Field 	: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Amount Field	: Display	: CEO Group Outstandings Rec
+
+	[Line : CEO DB OS Pay]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Medium Prompt	: Setas 	:"O/S Payable :"
+		Local	: Field 	: Amount Field	: Setas 	: $ClosingBalance:Group:$$GroupSundryCreditors
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Display	: CEO Group Outstandings Pay
+
+	[Line : CEO DB OS Nett]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Medium Prompt	: Setas 	:"Total :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Amount Field	: Setas 	: @@CEODBOSNettAmt
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Option	: CEO DB OS Nett Negative	: NOT $$IsDr:@@CEODBOSNettAmt
+
+	[!Line : CEO DB OS Nett Negative]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Medium Prompt	: Setas 	:"Total :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Amount Field	: Setas 	: @@CEODBOSNettAmt
+		Local	: Field 	: Amount Field	: Format	: "DrCr"	
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Local	: Field 	: Amount Field	: Color		: RED
+		Local	: Field 	: Amount Field	: Display	: CEO Group Outstandings Rec
+
+[Report : CEO Group Outstandings Rec]
+	Use 	: Group Outstandings
+	Set	: Group Name	: $$GroupSundryDebtors
+	Set	: DspNettClosing: "Yes"
+	
+[Report : CEO Group Outstandings Pay]
+	Use 	: Group Outstandings
+	Set	: Group Name	: $$GroupSundryCreditors
+	Set	: DspNettClosing: "Yes"
+
+[System : Formula]
+	CEO DB OS Rec Amt	: $ClosingBalance:Group:$$GroupSundryDebtors
+	CEO DB OS Pay Amt	: $ClosingBalance:Group:$$GroupSundryCreditors
+	CEO DB OS Nett Amt	: $$NettAmount:@@CEODBOSRecAmt:@@CEODBOSPayAmt
+
+;;;============================================================================================================
+;;; Nett Profit
+;;;============================================================================================================
+[Part :CEO DB NettProfit]
+	Lines		: CEO DB NettProfit Title, CEO DB GP Grs Pro, CEO DB NettProfit Grs Pro
+	Border		: Thin Top
+
+	[Line : CEO DB NettProfit Title]
+		Fields 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Profit & Loss"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Name Field	: Style		: Small
+		Local	: Field 	: Name Field	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+
+	[Line : CEO DB GP Grs Pro]
+		Fields 	:Medium Prompt
+		RightFields: CEO DB GP Grs Pro
+		Local	: Field 	: Medium Prompt	: Setas 	: If $$IsDr:@@CEOGrsPL Then "Gross Profit :" else "Gross LOSS :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Medium Prompt	: Display	: Profit and Loss
+		Local	: Field 	: Default	: Style		: Small
+
+		[Field : CEO DB GP Grs Pro]
+			Use 		: Amount Field
+			Setas 		: $$AsAmount:@@CEOGrsPL
+			Format		: "DrCr"
+			Border		: Totals
+			Display		: Profit and Loss
+			Style		: Small
+			Option		: CEO DB NettProfit Grs Pro Opt : NOT $$IsDr:@@CEOGrsPL
+
+		[!Field : CEO DB GP Grs Pro Opt]
+			Color		: RED
+
+
+
+	[Line : CEO DB NettProfit Grs Pro]
+		Fields 	:Medium Prompt
+		RightFields: CEO DB NettProfit Grs Pro
+		Local	: Field 	: Medium Prompt	: Setas 	: If $$IsDr:@@CEONettPL Then "Nett Profit :" else "NETT LOSS :"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Medium Prompt	: Display	: Profit and Loss
+		Local	: Field 	: Default	: Style		: Small
+
+		[Field : CEO DB NettProfit Grs Pro]
+			Use 		: Amount Field
+			Style		: Small
+			Setas 		: $$AsAmount:@@CEONettPL
+			Format		: "DrCr"
+			Border		: Totals
+			Display		: Profit and Loss
+			Option		: CEO DB NettProfit Grs Pro Opt : NOT $$IsDr:@@CEONettPL
+
+		[!Field : CEO DB NettProfit Grs Pro Opt]
+			Color		: RED
+
+
+[System : Formula]
+	CEO Nett PL		: $$AsPositive:$$AmountSubtract:$ClosingBalance:@@BSClosingProfit
+	CEO Grs PL		: @@GPClosingProfit
+;;;============================================================================================================
+;;; Stock Value
+;;;============================================================================================================
+[Part :CEO DB Cl Stock Val]
+	Line	 : CEO DB Cl Stock Val Title, CEO DB Cl Stock Val Op, CEO DB Cl Stock Val Cl
+	Border		: Thin Top
+
+	[Line : CEO DB Cl Stock Val Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Stock - Value"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth		
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line : CEO DB Cl Stock Val Op]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Opening Stock :"
+		Local	: Field		: Amount Field	: Setas		: @@BSOpeningStock
+		Local	: Field		: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Stock Summary
+
+
+
+	[Line : CEO DB Cl Stock Val Cl]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Closing Stock :"
+		Local	: Field		: Amount Field	: Setas		: @@BSClosingStock 
+		Local	: Field		: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Stock Summary
+
+;;;============================================================================================================
+;;; Cash Flow
+;;;============================================================================================================
+[Part : CEO DB Cash Flow]
+	Line	: CEO DB Cash Flow Title, CEO DB Cash Flow In, CEO DB Cash Flow Out, CEO DB Cash Flow Nett
+	Border	: Thin Top
+
+	[Line : CEO DB Cash Flow Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Cash Flow"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Cash Flow In]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Cash Inflow :"
+		Local	: Field		: Amount Field	: Setas		: $$AsPositive:$CashInFlow:Company:##SVCurrentCompany
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Cash Flow Breakup
+
+	[Line : CEO DB Cash Flow Out]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Cash Outflow :"
+		Local	: Field		: Amount Field	: Setas		: $$AsPositive:$CashOutFlow:Company:##SVCurrentCompany
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Cash Flow Breakup
+
+	[Line : CEO DB Cash Flow Nett]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Nett Flow :"
+		Local	: Field		: Amount Field	: Setas		: $$AsPositive:$CashInFlow:Company:##SVCurrentCompany - $$AsPositive:$$AsPositive:$CashOutFlow:Company:##SVCurrentCompany
+		Local	: Field		: Amount Field	: Border	: Totals
+		Option 	: CEO DB Cash Flow Nett	 Negative: ($$AsPositive:$CashInFlow:Company:##SVCurrentCompany < $$AsPositive:$$AsPositive:$CashOutFlow:Company:##SVCurrentCompany)
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Cash Flow Breakup
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Medium Prompt	: Style		: Small
+		Local	: Field 	: Amount Field	: Style		: Small
+
+	[!Line : CEO DB Cash Flow Nett	 Negative]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Nett Flow :"
+		Local	: Field		: Amount Field	: Setas		: $$AsPositive:$CashInFlow:Company:##SVCurrentCompany - $$AsPositive:$$AsPositive:$CashOutFlow:Company:##SVCurrentCompany
+		Local	: Field		: Amount Field	: Border	: Totals
+		Local	: Field 	: Amount Field	: Color		: RED
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Cash Flow Breakup
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Medium Prompt	: Style		: Small
+		Local	: Field 	: Amount Field	: Style		: Small
+
+;;;============================================================================================================
+;;; Sales & Purchase Value
+;;;============================================================================================================
+[Part : CEO DB Purc Sale]
+	Line	: CEO DB Purc Sale Title, CEO DB Purc Sale1, CEO DB Purc Sale2
+	Border		: Thin Top
+
+	[Line : CEO DB Purc Sale Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Total - Sales & Purchase"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line : CEO DB Purc Sale1]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Sales Value :"
+		Local	: Field		: Amount Field	: Setas		: $CreditTotals:Group:$$GroupSales
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Sales Register
+
+	[Line : CEO DB Purc Sale2]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	:"Purchase Value :"
+		Local	: Field		: Amount Field	: Setas		: $DebitTotals:Group:$$GroupPurchase
+		Local	: Field 	: Default	: Style		: Tiny
+		Local	: Field 	: Amount Field	: Display	: Purchase Register
+
+;;;============================================================================================================
+;;; Top 5 Products Sold in Value
+;;;============================================================================================================
+[Collection : CEO DB Top 5 Products Sale Value]
+	Type	: Stock Item
+	Sort	: Default	: -$$Number:$CEODBSaleVal
+	Filter	: CEO DB No Sales Vch
+	
+[Part : CEO DB Top 5 Products Sale Value]
+	Line	: CEO DB Top 5 Products Sale Value Title, CEO DB Top 5 Products Sale Value
+	Repeat	: CEO DB Top 5 Products Sale Value	: CEO DB Top 5 Products Sale Value
+	Border		: Thin Top
+
+
+	[Line : CEO DB Top 5 Products Sale Value Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field		: Setas		: "Top 5 Products (Sold in Value)"
+		Local	: Field		: Name Field		: Align		: Centre
+		Local	: Field		: Name Field		: Border	: Thin Bottom
+		Local	: Field 	: Default			: Style		: Small Bold
+		Local	: Field 	: Default			: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field		: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Sold Value Report
+		Local	: Field		: Name Field		: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Products Sale Value]
+		Empty	: $$Line >=6 OR $$IsEmpty:$CEODBSaleVal
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Amount Field		: Setas		: $CEODBSaleVal ;;;;$CEODBTop5SalesValue
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Sold Value Report
+
+
+[Report :CEO DB Top 5 Sold Value Report]
+	Use 	: StockSummary
+	Title	: "Top Products - Sold in Value"
+	Set	: IsItemwise		: "Yes"
+	Set	: DSP SHowQty		: "No"
+	Set 	: DSP ShowInwards	: "No"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "Yes"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "Yes"
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:$CEODBSaleVal
+	Local	: Field 	: DSP CrAmtA	: Setas	: $CEODBSaleVal
+
+	
+[Collection : CEO DB Ledger SValue for Stock Item]
+	Type 	: Ledger
+
+[#Object : Stock Item]
+	CEO DB Sale Val		: $SaleValue 
+	;;$$ExtractItemCrValue:$$Name:@@CEODBAllSalesVch:@@CEODBAllSalesVchYes
+	CEO DB Purc Val		: $PurcValue
+	;;$$ExtractItemDrValue:$$Name:@@CEODBAllPurcVch:@@CEODBAllSalesVchYes
+
+;;;============================================================================================================
+;;; Top 5 Suppliers
+;;;============================================================================================================
+[Part : CEO DB Top 5 Supp]
+	Line	: CEO DB Top 5 Supp Title, CEO DB Top 5 Supp
+	Repeat	: CEO DB Top 5 Supp	: CEO DB Top 5 Supp
+	Border	: Thin Top
+
+
+	[Line : CEO DB Top 5 Supp Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 5 Suppliers"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		Local	: Field 	: Amount Field	: Display	: CEO DB Top 5 Cust Report
+		
+	[Line : CEO DB Top 5 Supp]
+		Empty	: $$Line >=6 OR $$IsEmpty:@@CEODBCrsNett
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Amount Field		: Setas		: @@CEODBCrsNett	;;;$ClosingBalance ;; @@CEODBCrsNett
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Supp Report
+
+
+[Report :CEO DB Top 5 Supp Report]
+	Use 	: Group Summary
+	Title	:  "Sundry Creditors"
+	Set	: GroupName 	: $$GroupSundryCreditors
+	Set	: IsLedgerwise	: "YES"
+	Set	: DSPShowTrans	: "Yes"
+	Set	: DSPShowClosing: "No"
+	Set	: DSPSHowNett	: "Yes"
+	Local	: Collection	: Default	: Sort	: Default	: -@@CEODBCrsNett
+	Local	: Collection	: Default	: Add	: Filter	: CEO DB Only Crs
+
+
+[Collection : CEO DB Top 5 Supp]
+	Type 	: Ledger
+	Childof	: $$GroupSundryCreditors
+	BelongsTo: Yes
+	Sort	: Default	: -@@CEODBCrsNett
+	Filter	: CEO DB Only Crs
+
+[System : Formula]
+	CEO DB Only Crs 	: NOT $$IsDr:@@CEODBCrsNett	;;;$ClosingBalance 	;;;;;@@CEODBDrsNett
+	CEO DB Crs Nett		: $$NettAmount:$BSCredits:$BSDebits
+
+;;;============================================================================================================
+;;; Top 5 Products Sold in Volume
+;;;============================================================================================================
+[Collection : CEO DB Top 5 Products Sale Qty]
+	Type	: Stock Item
+	Sort	: Default	: -$$Number:$CEODBSaleQty
+	Filter	: CEO DB No Sales Vch
+
+[Part : CEO DB Top 5 Products Qty Sold]
+	Line 	: CEO DB Top 5 Products Qty Sold Title, CEO DB Top 5 Products Qty Sold 
+	Repeat	: CEO DB Top 5 Products Qty Sold	: CEO DB Top 5 Products Sale Qty
+	Border	: Thin Top
+	
+	[Line : CEO DB Top 5 Products Qty Sold Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 5 Products (Sold in Volume)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Products Qty Sold]
+		Empty	: $$Line >=6 OR $$IsEmpty:$CEODBSaleQty
+		Fields 	:Medium Prompt
+		RightFields: Qty Primary Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Qty Primary Field	: Setas		: $CEODBSaleQty  ;;$CEODBTop5SalesVolume
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Qty Primary Field	: Display	: CEO DB Top 5 Sold Qty Report
+		Local	: Field 	: Qty Primary Field	: Width		: @@AmountWidth
+		Local	: Field 	: Qty Primary Field	: Set Always	: Yes
+
+[Report :CEO DB Top 5 Sold Qty Report]
+	Use 	: StockSummary
+	Set	: IsItemwise		: "Yes"
+	Title	: "Top Products - Sold in Volume"
+	Set	: ReportTitle		: "Top Products - Sold in Volume"
+	PrintSet: ReportTitle		: "Top Products - Sold in Volume"
+	Set 	: DSP ShowInwards	: "No"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "Yes"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "No"
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:$CEODBSaleQty
+	Local	: Field 	: DSP OutQty	: Setas	: $$AsOutQty:$CEODBSaleQty
+
+[Collection : CEO DB Ledger Sale Qty for Stock Item]
+	Type : Ledger
+
+[#Object : Stock Item]
+	CEO DB Sale Qty		: $SaleQty ;;$$ExtractItemOutQty:$$Name:@@CEODBAllSalesVch:@@CEODBAllSalesVchYes
+	CEO DB Purc Qty		: $PurcQty ;;$$ExtractItemInQty:$$Name:@@CEODBAllPurcVch:@@CEODBAllSalesVchYes
+
+[System : Formula]
+	CEODBAllSalesVch	: $$VchTypeSales
+	CEODBAllPurcVch		: $$VchTypePurchase
+	CEODBAllSalesVchYes	: "Yes"
+	CEO DB no Purc Vch	: NOT $$IsEmpty:$PurcQty
+	CEO DB No Sales Vch	: NOT $$IsEmpty:$SaleQty
+
+;;;============================================================================================================
+;;; Top 5 Products Purchased in Volume
+;;;============================================================================================================
+[Collection : CEO DB Top 5 Products Purc Qty]
+	Type	: Stock Item
+	Sort	: Default	: -$$Number:$CEODBPurcQty
+	Filter	: CEO DB No Purc Vch
+
+[Part : CEO DB Top 5 Products Qty Purc]
+	Line 	: CEO DB Top 5 Products Qty Purc Title, CEO DB Top 5 Products Qty Purc
+	Repeat	: CEO DB Top 5 Products Qty Purc	: CEO DB Top 5 Products Purc Qty
+	Border	: Thin Top
+
+	
+	[Line : CEO DB Top 5 Products Qty  PurcTitle]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 5 Products (Purchased in Volume)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style			: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Products Qty Purc]
+		Empty	: $$Line >=6 OR $$IsEmpty:$CEODBPurcQty
+		Fields 	:Medium Prompt
+		RightFields: Qty Primary Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Qty Primary Field	: Setas		: $CEODBPurcQty  ;;;$CEODBTop5PurcVolume
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Qty Primary Field	: Display	: CEO DB Top 5 Purc Qty Report
+		Local	: Field 	: Qty Primary Field	: Width		: @@AmountWidth
+
+
+[Report : CEO DB Top 5 Purc Qty Report]
+	Use 	: StockSummary
+	Title	: "Top Products - Purchased in Volume"
+	Set	: IsItemwise		: "Yes"
+	Set	: DSP ShowQty		: "Yes"
+	Set 	: DSP ShowInwards	: "Yes"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "No"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "No"
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:$CEODBPurcQty
+	Local	: Field 	: DSP InQty	: Setas	: $$AsInQty:$CEODBPurcQty
+
+[Collection : CEO DB Ledger Purc Qty for Stock Item]
+	Type : Ledger
+
+;;;============================================================================================================
+;;; Top 5 Products Purchased in Value
+;;;============================================================================================================
+[Collection : CEO DB Top 5 Products Purc Value]
+	Type	: Stock Item
+	Sort	: Default	: -$$Number:$CEODBPurcVal
+	Filter	: CEO DB No Purc Vch
+	
+[Part : CEO DB Top 5 Products Purc Value]
+	Line	: CEO DB Top 5 Products Purc Value Title, CEO DB Top 5 Products Purc Value
+	Repeat	: CEO DB Top 5 Products Purc Value	: CEO DB Top 5 Products Purc Value
+	Border		: Thin Top
+
+
+	[Line : CEO DB Top 5 Products Purc Value Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field		: Setas		: "Top 5 Products (Purchased in Value)"
+		Local	: Field		: Name Field		: Align		: Centre
+		Local	: Field		: Name Field		: Border	: Thin Bottom
+		Local	: Field 	: Default		: Style		: Small Bold
+		Local	: Field 	: Default		: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field		: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Purc Value Report
+		Local	: Field		: Name Field		: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Products PUrc Value]
+		Empty	: $$Line >=6 OR $$IsEmpty:$CEODBPurcVal
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Amount Field		: Setas		: $CEODBPurcVal ;;;;$CEODBTop5SalesValue
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style			: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Purc Value Report
+
+
+ [Report :CEO DB Top 5 Purc Value Report]
+	Use 	: StockSummary
+	Title	: "Top Products - Purchased in Value"
+	SEt	: ReportTitle	: "Top Products - Purchased in Value"
+	Set	: IsItemwise		: "Yes"
+	Set	: DSP SHowQty		: "No"
+	Set 	: DSP ShowInwards	: "Yes"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "No"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "Yes"
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:$CEODBPurcVal
+	Local	: Field 	: DSP DrAmtA	: Setas	: $CEODBPurcVal
+
+;;;============================================================================================================
+;;; Sales Order Value
+;;;============================================================================================================
+[Part : CEO DB Sales Order Value]
+	Lines		: CEO DB Sales Order Value Title, CEO DB Sales Order Value
+	Border		: Thin Top
+
+	[Line : CEO DB Sales Order Value Title]
+		Fields 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Sales Order (Value)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Name Field	: Style		: Small Bold
+		Local	: Field 	: Name Field	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line :CEO DB Sales Order Value]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	: "Total"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Amount Field	: Setas 	: $$AsAmount:@@CEODBSalesOrderValue
+		Local	: Field 	: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Local	: Field 	: Amount Field	: Display	: CEO DB Sales Order Register
+
+
+[System : Formula]
+	CEO DB Sales Order Value	: $$CollAmtTotal:CEODBSalesORderVouchers:@@CEODBSalesOrderValueInv
+	CEO DB Sales Order Value Inv	: $$CollAmtTotal:AllInventoryEntrieS:$Amount
+	CEO DB Sales Order Value Filt	: $$IsSalesOrder:$VoucherTypeName
+
+[Collection : CEO DB Sales Order Vouchers]
+	Type	: Voucher
+	Filter	: CEO DB Sales Order Value Filt
+
+[Report : CEO DB Sales Order Register]
+	Title	:  "Sales Order Register"
+	Use 	: Sales  Register	;;Voucher Monthly Summary
+	Set	: VoucherTypeName	: $$VchTypeSalesOrder
+	List Name : "List of SalesOrder Vouchers"
+	SEt 	: FamilyvoucherFlag	: "No"
+
+;;;============================================================================================================
+;;; Purchase Order Value
+;;;============================================================================================================
+[Part : CEO DB Purc Order Value]
+	Lines		: CEO DB Purc Order Value Title, CEO DB Purc Order Value
+	Border		: Thin Top
+
+	[Line : CEO DB Purc Order Value Title]
+		Fields 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Purchase Order (Value)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Name Field	: Style		: Small Bold
+		Local	: Field 	: Name Field	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field		: Name Field	: FullWidth	: Yes
+
+	[Line :CEO DB Purc Order Value]
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt	: Setas 	: "Total"
+		Local	: Field 	: Medium Prompt	: Align		: Centre
+		Local	: Field 	: Default	: Style		: Small
+		Local	: Field 	: Amount Field	: Setas 	: $$AsAmount:@@CEODBPurcOrderValue
+		Local	: Field 	: Amount Field	: Format	: "DrCr"
+		Local	: Field 	: Amount Field	: Border	: Totals
+		Local	: Field 	: Amount Field	: Display	: CEO DB Purc  Order Register
+
+
+[System : Formula]
+	CEO DB  Purc Order Value	: $$CollAmtTotal:CEODBPurcORderVouchers:@@CEODBPurcOrderValueInv
+	CEO DB Purc Order Value Inv	: $$CollAmtTotal:AllInventoryEntrieS:$Amount
+	CEO DB Purc Order Value Filt	: $$IsPurcOrder:$VoucherTypeName
+
+[Collection : CEO DB Purc Order Vouchers]
+	Type	: Voucher
+	Filter	: CEO DB Purc Order Value Filt
+
+[Report : CEO DB Purc Order Register]
+	Use 	: Sales Register	;;Voucher Monthly Summary
+	Set	: VoucherTypeName	: $$VchTypePurcOrder
+	List Name : "List of Purchase Order Vouchers"
+	SEt 	: FamilyvoucherFlag	: "No"
+
+
+;;;============================================================================================================
+;;; Top 5 Customers Receivables
+;;;============================================================================================================
+[Part : CEO DB Top 5 Cust Recvble]
+	Line	: CEO DB Top 5 Cust Recvble Title, CEO DB Top 5 Cust Recvble
+	Repeat	: CEO DB Top 5 Cust Recvble	: CEO DB Top 5 Cust Recvble
+	Border	: Thin Top
+
+	[Line : CEO DB Top 5 Cust Recvble Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 5 Customers (O/S - Receivables)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Top 5 Cust Recvble Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Cust Recvble]
+		Empty	: $$Line >=6 OR $$IsEmpty:@@CEODBOnlyDrsRecvble
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Amount Field		: Setas		: @@CEODBOnlyDrsRecvble
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Cust Recvble Report
+
+[Report :CEO DB Top 5 Cust Recvble Report]
+	Use 	: Group Summary
+	Title	:  "Receivable Statement"
+	Set	: GroupName 	: $$GroupSundryDebtors
+	Set	: IsTrialBalance: "No"
+	Set	: IsBankSummary	: "No"
+	Set	: IsLedgerwise	: "YES"
+
+
+	Local	: Collection	: Default	: Delete: Sort
+	Local	: Collection	: Default	: Sort	: Default	: $ClosingBalance ;;;;@@CEODBOnlyDrsRecvble
+	Local	: Collection	: Default	: Add	: Filter	: CEO DB Only Drs Recvble Filt
+
+
+[Collection : CEO DB Top 5 Cust Recvble]
+	Type 	: Ledger
+	Childof	: $$GroupSundryDebtors
+	BelongsTo: Yes
+	Sort	: Default	: $ClosingBalance
+	Filter	: CEO DB Only Drs Recvble Filt
+	
+
+[System : Formula]
+	CEO DB Only Drs Recvble Filt 	: $$IsDr:$ClosingBalance
+	CEO DB Only Drs Recvble		: $ClosingBalance
+
+
+;;;============================================================================================================
+;;; Top 5 Customers Payables
+;;;============================================================================================================
+[Part : CEO DB Top 5 Cust Payable]
+	Line	: CEO DB Top 5 Cust Payable Title, CEO DB Top 5 Cust Payable
+	Repeat	: CEO DB Top 5 Cust Payable	: CEO DB Top 5 Cust Payable
+	Border	: Thin Top
+
+	[Line : CEO DB Top 5 Cust Payable Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 5 Suppliers (O/S - Payables)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Top 5 Cust Payable Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 Cust Payable]
+		Empty	: $$Line >=6 OR $$IsEmpty:@@CEODBOnlyCrsPayable
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Amount Field		: Setas		: @@CEODBOnlyCrsPayable
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 Cust Payable Report
+
+[Report :CEO DB Top 5 Cust Payable Report]
+	Use 	: Group Summary
+	Title	:  "Payables Statment"
+	Set	: GroupName 	: $$GroupSundryCreditors
+	Set	: IsTrialBalance: "No"
+	Set	: IsBankSummary	: "No"
+	Set	: IsLedgerwise	: "YES"
+
+	Local	: Collection	: Default	: Add	: Sort		: Default	: -$ClosingBalance
+	Local	: Collection	: Default	: Add	: Filter	: CEO DB Only Crs Payable Filt
+
+
+[Collection : CEO DB Top 5 Cust Payable]
+	Type 	: Ledger
+	Childof	: $$GroupSundryCreditors
+	BelongsTo: Yes
+	Sort	: Default	: -$ClosingBalance
+	Filter	: CEO DB Only Crs Payable Filt
+	
+
+[System : Formula]
+	CEO DB Only Crs Payable Filt 	: NOT $$IsDr:$ClosingBalance
+	CEO DB Only Crs Payable		: $ClosingBalance
+
+
+;;;============================================================================================================
+;;; Top 5 Overdue Bills DR
+;;;============================================================================================================
+[Collection  : CEO DB Top 5 OverDue Dr Coll]
+	Type	: Bills
+	Sort	: Default	: -$$Number:@@CEODBOverdueDays
+	Filter	: CEO DB Top 5 OverDueDr Filter
+
+[System :Formula]
+	CEO DB Top 5 OverDueDr Filter	: $$IsDr:$ClosingBalance AND $$IsLedofGrp:$parent:$$GroupSundryDebtors
+	CEODBOverdueDays		: @@DSPTODate - @@CreditPeriod
+
+[Part : CEO DB Top 5 OverDue Dr]
+	Line	: CEO DB Top 5 OverDue Dr Title, CEO DB Top 5 OverDue Dr
+	Repeat	: CEO DB Top 5 OverDue Dr	: CEO DB Top 5 OverDue Dr Coll
+	Border	: Thin Top
+
+	[Line : CEO DB Top 5 OverDue Dr Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Over Due Bills (Dr)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Top 5 OverDueDr  Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 OverDueDr]
+		Empty	: $$Line >=4 OR $$IsEmpty:$ClosingBalance
+		Fields 	:Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Parent+" :"
+		Local	: Field		: Amount Field		: Setas		: $ClosingBalance
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 OverDueDr  Report
+
+[Report :CEO DB Top 5 OverDueDr  Report]
+	Use 	: Bills Receivable
+	Title	:  "Bills Receivable"
+	Set	: IsTrialBalance: "No"
+	Set	: IsBankSummary	: "No"
+	Set	: IsLedgerwise	: "YES"
+
+;;;============================================================================================================
+;;; Top 5 Overdue Bills CR
+;;;============================================================================================================
+[Collection  : CEO DB Top 5 OverDue Cr Coll]
+	Type	: Bills
+	Sort	: Default	: -$$Number:@@CEODBOverdueDays
+	Filter	: CEO DB Top 5 OverDueCr Filter
+
+[System :Formula]
+	CEO DB Top 5 OverDueCr Filter	: NOT $$IsDr:$ClosingBalance AND $$IsLedofGrp:$Parent:$$GroupSundryCreditors
+
+[Part : CEO DB Top 5 OverDue Cr]
+	Line	: CEO DB Top 5 OverDue Cr Title, CEO DB Top 5 OverDue Cr
+	Repeat	: CEO DB Top 5 OverDue Cr	: CEO DB Top 5 OverDue Cr Coll
+	Border	: Thin Top
+
+	[Line : CEO DB Top 5 OverDue Cr Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Over Due Bills (Cr)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Top 5 OverDueCr  Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 5 OverDueCr]
+		Empty	: $$Line >=4 OR $$IsEmpty:$ClosingBalance
+		Fields 	: Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Parent+" :"
+		Local	: Field		: Amount Field		: Setas		: $ClosingBalance
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Top 5 OverDueCr  Report
+
+[Report :CEO DB Top 5 OverDueCr  Report]
+	Use 	: Bills Payable
+	Title	:  "Bills Payable"
+	Set	: ShowReceivables	: No
+
+;;;============================================================================================================
+;;; Top 5 Cost Centres Debit
+;;;============================================================================================================
+[Collection  : CEO DB Cost Centre Dr Coll]
+	Type	: Cost Centre
+	Sort	: Default	: -$$Number:@@CEODBCostCentreNett
+	Filter	: CEO DB Cost Centre Dr Filter
+
+[System :Formula]
+	CEO DB Cost Centre Dr Filter	: $$IsDr:@@CEODBCostCentreNett
+	CEODBCostCentreDr		: $$AsPositive:@@CEODBCostCentreNett
+
+[Part : CEO DB Cost Centre Dr]
+	Line	: CEO DB Cost Centre Dr Title, CEO DB Cost Centre Dr
+	Repeat	: CEO DB Cost Centre Dr	: CEO DB Cost Centre Dr Coll
+	Border	: Thin Top
+
+	[Line : CEO DB Cost Centre Dr Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Cost Centres (Expenses)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Cost Centre Dr  Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Cost Centre Dr]
+		Empty	: $$Line >=4 OR $$IsEmpty:@@CEODBCostCentreNett
+		Fields 	: Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $$Name+" :"
+		Local	: Field		: Amount Field		: Setas		: @@CEODBCostCentreNett
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Cost Centre Dr Report
+
+[Report :CEO DB Cost Centre Dr Report]
+	Use 	: Cost Centre Summary
+	Title	: "Top Cost Centres - Expenses"
+	Set	: DSPShowClosing: "No"
+	Set	: DSPSHowNett	: "Yes"
+	Local	: Collection	: CostCentreChildOfCCName	: Delete	:     Filter      : BelongsToCstCatName
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:@@CEODBCostCentreNett
+	Local	: Collection	: Default	: Add	: Filter	: CEO DB Cost Centre Dr Filter
+	
+[Form : CEO DB Cost Centre Dr Report]
+            Use             : DSP Template
+            Add:Button      : ChangeItem
+            Parts           : DSP AccTitles, DSP ColTitles, DSP AccBody
+            Background      : White, Light Autumn Green
+            Local           : Part      : DSP AccBody       : Repeat    : DSP AccLine        : CostCentreChildOfCCName
+            Local           : Line      : DSP AccLine       : Explode   : CST Explosion      : @@CCCanExplode
+            Local           : Field     : DSPItemTitle      : Set as    : ##CostCentreName
+            Local           : Line      : DSP ItemTitle     : Invisible : $$IsSysNameVar:CostCentreName
+            Local           : Line      : DSP AccLine       : Add       : Field : At Beginning : CCIsDirectCost
+            Local           : Field     : DSP CategoryTitle : Set as    : if $$IsSysNameVar:CostCentreName then +
+                                                                          ( "Category: " + ##CostCategoryName) else +
+                                                                          ( "Category: " + $Category:CostCentre:##CostCentreName)
+
+;;;============================================================================================================
+;;; Top 5 Cost Centres Credit
+;;;============================================================================================================
+[Collection  : CEO DB Cost Centre Cr Coll]
+	Type	: Cost Centre
+	Sort	: Default	: -$$Number:@@CEODBCostCentreNett
+	Filter	: CEO DB Cost Centre Cr Filter
+
+[System :Formula]
+	CEO DB Cost Centre Cr Filter	: NOT $$IsDr:@@CEODBCostCentreNett
+	CEODBCostCentreCr		: $$AsPositive:@@CEODBCostCentreNett
+	CEODBCostCentreNett		: $$NettAmount:$DebitTotals:$CreditTotals
+
+[Part : CEO DB Cost Centre Cr]
+	Line	: CEO DB Cost Centre Cr Title, CEO DB Cost Centre Cr
+	Repeat	: CEO DB Cost Centre Cr	: CEO DB Cost Centre Cr Coll
+	Border	: Thin Top
+
+	[Line : CEO DB Cost Centre Cr Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Cost Centres (Income)"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Amount Field	: Display	: CEO DB Cost Centre Cr  Report
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Cost Centre Cr]
+		Empty	: $$Line >=4 OR $$IsEmpty:@@CEODBCostCentreNett
+		Fields 	: Medium Prompt
+		RightFields: Amount Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $$Name+" :"
+		Local	: Field		: Amount Field		: Setas		: @@CEODBCostCentreNett
+		Local	: Field		: Amount Field		: Format	: "DrCr"
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Amount Field		: Display	: CEO DB Cost Centre Cr Report
+
+[Report :CEO DB Cost Centre Cr Report]
+	Use 	: Cost Centre Summary
+	Title	: "Top Cost Centres - Income"
+	Set	: DSPShowClosing: "No"
+	Set	: DSPSHowNett	: "Yes"
+	Local	: Collection	: Default	: Sort	: Default	: -$$Number:@@CEODBCostCentreNett
+	Local	: Collection	: Default	: Add	: Filter	: CEO DB Cost Centre Cr Filter
+	Local	: Collection	: CostCentreChildOfCCName	: Delete	:     Filter      : BelongsToCstCatName
+
+[Form : CEO DB Cost Centre Cr Report]
+            Use             : DSP Template
+            Add:Button      : ChangeItem
+            Parts           : DSP AccTitles, DSP ColTitles, DSP AccBody
+            Background      : White, Light Autumn Green
+            Local           : Part      : DSP AccBody       : Repeat    : DSP AccLine        : CostCentreChildOfCCName
+            Local           : Line      : DSP AccLine       : Explode   : CST Explosion      : @@CCCanExplode
+            Local           : Field     : DSPItemTitle      : Set as    : ##CostCentreName
+            Local           : Line      : DSP ItemTitle     : Invisible : $$IsSysNameVar:CostCentreName
+            Local           : Line      : DSP AccLine       : Add       : Field : At Beginning : CCIsDirectCost
+            Local           : Field     : DSP CategoryTitle : Set as    : if $$IsSysNameVar:CostCentreName then +
+                                                                          ( "Category: " + ##CostCategoryName) else +
+                                                                          ( "Category: " + $Category:CostCentre:##CostCentreName)
+;;;============================================================================================================
+;;; Top 3 Non Moving Stock Items
+;;;============================================================================================================
+[Collection : CEO DB Top 3 Non Moving Item Coll]
+	Type	: Stock Item
+	Fetch	: StkClBalance
+	Sort	: Default	: -$$Number:$CEODBSaleQty, $$Number:$CEODBPurcQty
+;;	Filter	: CEO DB Top 3 Non Moving Item Coll Filter
+	
+[Part : CEO DB Top 3 Non Moving Item]
+	Line 	: CEO DB Top 3 Non Moving Item Title, CEO DB Top 3 Non Moving Item
+	Repeat	: CEO DB Top 3 Non Moving Item		: CEO DB Top 3 Non Moving Item Coll
+	Border	: Thin Top
+	
+	[Line : CEO DB Top 3 Non Moving Item Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Non-Moving Items"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 3 Non Moving Item]
+		Empty	: $$Line >=4 OR NOT $$IsEmpty:$CEODBSaleQty
+		Fields 	:Medium Prompt
+		RightFields: Qty Primary Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Qty Primary Field	: Setas		: $StkClBalance ;;$CEODBSaleQty  ;;$CEODBTop5SalesVolume
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Qty Primary Field	: Display	: CEO DB Top 3 Non Moving Report
+		Local	: Field 	: Qty Primary Field	: Width		: @@AmountWidth
+		Local	: Field 	: Qty Primary Field	: Set Always	: Yes
+
+[Report :CEO DB Top 3 Non Moving Report]
+	Use 	: StockSummary
+	Set	: IsItemwise		: "Yes"
+	Title	:  "Non Moving Items"
+	Set 	: DSP ShowInwards	: "No"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "Yes"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "No"
+	Local	: Collection	: Default	: Sort	: Default	: $$Number:$CEODBSaleQty
+	Local	: Field 	: DSP OutQty	: Setas	: $$Number:$CEODBSaleQty  ;;;;$$AsOutQty:$CEODBSaleQty
+	Local	: Collection	: Default	: Add 	: Filter	: CEO DB Top 3 Non Moving Item Coll Filter
+
+[System : Formula]
+	CEO DB Top 3 Non Moving Item Coll Filter	: $$IsEmpty:$CEODBSaleQty
+
+;;;============================================================================================================
+;;; Top 3 Slow Moving Stock Items
+;;;============================================================================================================
+[Collection : CEO DB Top 3 Slow Moving Item Coll]
+	Type	: Stock Item
+	Sort	: Default	: $$Number:$CEODBSaleQty
+	Filter	: CEO DB Top 3 Slow Moving Item Coll Filter
+
+[Part : CEO DB Top 3 Slow Moving Item]
+	Line 	: CEO DB Top 3 Slow Moving Item Title, CEO DB Top 3 Slow Moving Item
+	Repeat	: CEO DB Top 3 Slow Moving Item		: CEO DB Top 3 Slow Moving Item Coll
+	Border	: Thin Top
+	
+	[Line : CEO DB Top 3 Slow Moving Item Title]
+		Field 	: Name Field
+		Local	: Field		: Name Field	: Setas		: "Top 3 Slow-Moving Items"
+		Local	: Field		: Name Field	: Align		: Centre
+		Local	: Field		: Name Field	: Border	: Thin Bottom
+		Local	: Field 	: Default	: Style		: Small Bold
+		Local	: Field		: Name Field	: Width		: @@NameWidth+@@AmountWidth
+		Local	: Field 	: Default	: BackGround	: CEO DB Title Color
+		Local	: Field		: Name Field	: FullWidth	: Yes
+		
+	[Line : CEO DB Top 3 Slow Moving Item]
+		Empty	: $$Line >=4 OR $$IsEmpty:$CEODBSaleQty
+		Fields 	: Medium Prompt
+		RightFields: Qty Primary Field
+		Local	: Field 	: Medium Prompt		: Setas 	: $Name+" :"
+		Local	: Field		: Qty Primary Field	: Setas		: $CEODBSaleQty
+		Local	: Field 	: Default		: Style		: Tiny
+		Local	: Field 	: Qty Primary Field	: Display	: CEO DB Top 3 Slow Moving Report
+		Local	: Field 	: Qty Primary Field	: Width		: @@AmountWidth
+		Local	: Field 	: Qty Primary Field	: Set Always	: Yes
+
+[Report :CEO DB Top 3 Slow Moving Report]
+	Use 	: StockSummary
+	Title	:  "Slow Moving Items"
+	Set	: IsItemwise		: "Yes"
+
+	Set 	: DSP ShowInwards	: "No"
+	Set	: DSP Showclosing	: "No"
+	SEt	: DSP ShowOpening	: "No"
+	SET 	: DSP ShowOutwards	: "Yes"
+	Set	: DSP ShowRate		: "No"
+	Set	: DSP ShowValue		: "No"
+	Local	: Collection	: Default	: Sort	: Default	: $$Number:$CEODBSaleQty
+	Local	: Field 	: DSP OutQty	: Setas	: $$AsOutQty:$CEODBSaleQty
+	Local	: Collection	: Default	: Add 	: Filter	: CEO DB Top 3 Slow Moving Item Coll Filter
+
+[System : Formula]
+	CEO DB Top 3 Slow Moving Item Coll Filter	: NOT $$IsEmpty:$CEODBSaleQty
+
+;;; Eof
+
+
+
